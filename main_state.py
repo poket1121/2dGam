@@ -16,7 +16,6 @@ grass = None
 font = None
 
 
-
 class map:
     def __init__(self):
         self.image = load_image('map.png')
@@ -52,6 +51,19 @@ class Pica:
     LEFT_RUN,RIGHT_RUN = 0 , 1
     LEFT_STAND,RIGHT_STAND = 2, 3
     JUMP = 4
+
+    PIXEL_PER_METER = (10.0 /0.3) #   10 pixel 30cm
+    RUN_SPEED_KMPH = 20.0        # Km / Hour
+    RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
+    RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
+    RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+
+    TIME_PER_ACTION = 0.5
+    ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+    FRAMES_PER_ACTION = 8
+
+
+
     def __init__(self):
         self.x, self.y = 400 , 30
         self.frame = random.randint(0,5)
@@ -61,14 +73,22 @@ class Pica:
             Pica.image = load_image('pica.png')
 
     def handle_event(self,event):
-        if(event.type, event.key) == (SDL_KEYDOWN, SDLK_LEFT):
-            self.state = self.LEFT_RUN
-        elif(event.type, event.key) == (SDL_KEYDOWN, SDLK_RIGHT):
-            self.state = self.RIGHT_RUN
-        elif(event.type, event.key) == (SDL_KEYUP, SDLK_RIGHT):
-            self.state = self.RIGHT_STAND
-        elif(event.type, event.key) == (SDL_KEYUP, SDLK_LEFT):
-            self.state = self.LEFT_STAND
+        if (event.type, event.key) == (SDL_KEYDOWN,SDLK_LEFT):
+            if self.state in (self.RIGHT_STAND, self.LEFT_STAND):
+                self.state = self.LEFT_RUN
+            elif self.state == self.RIGHT_RUN:
+                self.state = self.LEFT_RUN
+        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_RIGHT):
+            if self.state in (self.RIGHT_STAND,self.LEFT_STAND):
+                self.state = self.RIGHT_RUN
+            elif self.state == self.LEFT_RUN:
+                self.state = self.RIGHT_RUN
+        elif (event.type, event.key) == (SDL_KEYUP, SDLK_LEFT):
+            if self.state in (self.LEFT_RUN,):
+                self.state = self.LEFT_STAND
+        elif (event.type,event.key) == (SDL_KEYUP,SDLK_RIGHT):
+            if self.state in (self.RIGHT_RUN,):
+                self.state = self.RIGHT_STAND
 
 
         elif(event.type, event.key) == (SDL_KEYDOWN, SDLK_SPACE):
@@ -77,9 +97,8 @@ class Pica:
 
 
 
-
-
     def update(self):
+
         if self.JUMP == 1:
             self.y += 10
             if(self.y >= 50):
@@ -100,7 +119,7 @@ class Pica:
             pass
 
         if self.state == self.RIGHT_RUN:
-            self.frame = (self.frame + 1 ) % 5
+            self.frame = int(self.frame + 1)%5
             self.x += 5
         elif self.state == self.LEFT_RUN:
             self.frame = (self.frame + 1 ) % 5
@@ -113,6 +132,7 @@ class Pica:
 
     def draw(self):
         self.image.clip_draw(self.frame*64,self.state*65,65,65,self.x,self.y)
+
 
 
 def handle_events():
