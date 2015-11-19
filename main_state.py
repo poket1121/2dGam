@@ -94,8 +94,9 @@ class Pica:
         elif(event.type, event.key) == (SDL_KEYDOWN, SDLK_SPACE):
            if(self.JUMP == 0):
                self.JUMP = 1
-
-
+    
+    def pica_bb(self):
+        pass
 
     def update(self):
 
